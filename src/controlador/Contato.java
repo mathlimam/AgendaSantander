@@ -2,12 +2,14 @@ package controlador;
 
 public class Contato {
     String[][] contatos;
-    public Contato() {}
 
-    public void adicionar(String[] contatoPassado) {
-        if (contatos==null) { //Faz a verificação da lista. Se a lista estiver como null, nenhum contato foi adicionado. Então, inicializamos a lista e incluímos o valor passado como primeiro do array.
-            contatos = new String[1][3];
-            contatos[0] = contatoPassado;
+    public Contato() {} //Construtor
+
+    public void adicionar(String[] contatoParaIncluir) {
+
+        if (contatos==null) { //Faz a verificação da lista. Se a lista estiver como null, nenhum contato foi adicionado.
+            contatos = new String[1][3]; //Então, inicializamos a lista
+            contatos[0] = contatoParaIncluir; // e incluímos o valor passado como primeiro do array.
         }
 
         else {
@@ -16,21 +18,63 @@ public class Contato {
                 contatosAux[i] = contatos[i];
             }
 
-            contatosAux[contatosAux.length -1] = contatoPassado; //Pega a ultima posição da array auxiliar e incrementa o contato passado
-            this.contatos = contatosAux; // Digo que minha array contatos agora é igual ao contatosAux, fazendo assim com que a array aumente de tamanho toda vez que precisarmos adicionar informações
+            contatosAux[contatosAux.length -1] = contatoParaIncluir; //Pega a ultima posição da array auxiliar e incrementa o contato passado
+            this.contatos = contatosAux; //A array contatos agora é igual ao contatosAux, fazendo assim com que a array aumente de tamanho toda vez que precisarmos adicionar informações
 
         }
     }
 
-    public String[] encontrar(String telefone){
-        String[] resultado = new String[contatos.length];
+    public void remover(String telefone){
 
-        for(int i =0; i<contatos.length; i++){
-            if (contatos[i][1].equals(telefone)){
-                resultado = contatos[i];
+        int indice = encontrar(telefone);
+        String[][] contatosAux = new String[contatos.length-1][3];
+
+        if (indice == 0){
+            for(int i = 1; i<=contatosAux.length; i++) {
+                contatosAux[i-1] = contatos[i];
+
             }
         }
 
-        return resultado;
+        else if (indice == contatos.length-1){
+            for (int i =0; i<contatosAux.length; i++) {
+                contatosAux[i] = contatos[i];
+            }
+        }
+
+
+        else {
+            for (int i =0; i<indice; i++) {
+                contatosAux[i] = contatos[i];
+            }
+            for (int i =indice+1; i<contatos.length; i++) {
+                contatosAux[i-1] = contatos[i];
+            }
+        }
+        this.contatos = contatosAux;
+    }
+
+    public int encontrar(String telefone){
+
+        Integer indiceContato = null;
+        for(int i =0; i<contatos.length; i++){
+
+            if (contatos[i][1].equals(telefone)) {
+                indiceContato = i;
+                //Percorre os telefones da array contatos. Se encontrar um telefone igual, retorna o indice do contato na array. Se não, o retorno será null;
+            }
+
+        }
+        return indiceContato;   //Aqui acontece a primeira exception, quando indiceContato é null. Isso se dá pq o metodo espera como retorno uma int, e não há como uma int ser null.
+                                //Temos duas abordagens: Mudar o método para Integer, ou então criar um try-catch (bom pra pôr em prática).
+    }
+    
+
+    public String[] consultarPorIndice(int indice) {
+        return contatos[indice];
+    }
+
+    public int tamanhoDaAgenda(){
+        return contatos.length;
     }
 }
