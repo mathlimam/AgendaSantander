@@ -1,80 +1,180 @@
 package controlador;
+import java.util.Scanner;
+
+import exception.AgendaVaziaException;
+import exception.NumeroJaInseridoException;
+import modelo.ContatoModel;
 
 public class Contato {
-    String[][] contatos;
 
-    public Contato() {} //Construtor
+    private Contato[] contato;
+    private String nome;
+    private String telefone;
+    private String email;
 
-    public void adicionar(String[] contatoParaIncluir) {
 
-        if (contatos==null) { //Faz a verificação da lista. Se a lista estiver como null, nenhum contato foi adicionado.
-            contatos = new String[1][3]; //Então, inicializamos a lista
-            contatos[0] = contatoParaIncluir; // e incluímos o valor passado como primeiro do array.
+    //Método construtor
+    public Contato() {
+        this.nome = null;
+        this.telefone = null;
+        this.email = null;
+    }
+
+    //Getters e Setters
+    public String getNome(){
+        return this.nome;
+    }
+
+    public String getTelefone(){
+        return this.telefone;
+    }
+
+    public String getEmail(){
+        return this.email;
+    }
+
+    public void setDadosContato(String nome, String telefone, String email) {
+        this.nome = nome;
+        this.telefone = telefone;
+        this.email = email;
+    }
+
+    public void adicionar(String nome, String telefone, String email){
+
+        if (contato == null){
+            contato = new Contato[1];
+            contato[0] = new Contato();
+            contato[0].setDadosContato(nome, telefone, email);
         }
 
         else {
-            String[][] contatosAux = new String[contatos.length+1][3];
-            for(int i = 0; i<contatos.length; i++) { //Copia a array contatos para uma auxiliar com tamanho contatos.length +1
-                contatosAux[i] = contatos[i];
+            try {
+                if (!ContatoModel.numeroJaInserido(contato, telefone)) {
+
+                    Contato[] contatoAux = new Contato[contato.length + 1];
+                    contatoAux = Contato.copiarAgenda(contato, contatoAux);
+                    contatoAux[contato.length] = new Contato();
+                    contatoAux[contato.length].setDadosContato(nome, telefone, email);
+
+                    contato = contatoAux;
+                } else {
+                    throw new NumeroJaInseridoException("Número já inserido na base de dados");
+                }
             }
-
-            contatosAux[contatosAux.length -1] = contatoParaIncluir; //Pega a ultima posição da array auxiliar e incrementa o contato passado
-            this.contatos = contatosAux; //A array contatos agora é igual ao contatosAux, fazendo assim com que a array aumente de tamanho toda vez que precisarmos adicionar informações
-
+            catch (NumeroJaInseridoException e) {
+                System.err.println(e.getMessage());
+            }
         }
-    }
+        }
 
     public void remover(String telefone){
 
-        int indice = encontrar(telefone);
-        String[][] contatosAux = new String[contatos.length-1][3];
+        int indice = encontrarContato(contato, telefone);
+        if (indice != -1){
+            Contato[] contatoAux = new Contato[contato.length - 1];
+            if (indice == 0) {
+                for (int i = 1; i < contatoAux.length; i++) {
+                    contatoAux[i] = contato[i];
+                }
+            }
 
-        if (indice == 0){
-            for(int i = 1; i<=contatosAux.length; i++) {
-                contatosAux[i-1] = contatos[i];
+            else if (indice == contato.length - 1){
+                for (int i = 0; i < contatoAux.length; i++) {
+                    contatoAux[i] = contato[i];
+                }
+            }
+
+            else {
+                for( int i=0; i < indice; i++){
+
+                    contatoAux[i] = contato[i];
+                }
+
+                for(int i=indice +1; i < contato.length; i++){
+
+                    contatoAux[i-1] = contato[i];
+                }
 
             }
+            contato = contatoAux;
         }
 
-        else if (indice == contatos.length-1){
-            for (int i =0; i<contatosAux.length; i++) {
-                contatosAux[i] = contatos[i];
-            }
-        }
-
-
-        else {
-            for (int i =0; i<indice; i++) {
-                contatosAux[i] = contatos[i];
-            }
-            for (int i =indice+1; i<contatos.length; i++) {
-                contatosAux[i-1] = contatos[i];
-            }
-        }
-        this.contatos = contatosAux;
     }
 
-    public int encontrar(String telefone){
+    public void editar(String telefone){
+        try{
+        int indice = encontrarContato(contato, telefone);
+        Scanner s = new Scanner(System.in);
 
-        Integer indiceContato = null;
-        for(int i =0; i<contatos.length; i++){
+        if (indice != -1) {
 
-            if (contatos[i][1].equals(telefone)) {
-                indiceContato = i;
-                //Percorre os telefones da array contatos. Se encontrar um telefone igual, retorna o indice do contato na array. Se não, o retorno será null;
+            try {
+                String novoNome = s.nextLine();
+                String novoTelefone = s.nextLine();
+                String novoEmail = s.nextLine();
+
+                if (encontrarContato(contato, novoTelefone) != -1) {
+                    throw new NumeroJaInseridoException("Número já consta na agenda");
+                }
+                contato[indice].setDadosContato(s.nextLine(), s.nextLine(), s.nextLine());
+            } catch (NumeroJaInseridoException e) {
+                System.err.println(e.getMessage());
             }
-
         }
-        return indiceContato;   //Aqui acontece a primeira exception, quando indiceContato é null. Isso se dá pq o metodo espera como retorno uma int, e não há como uma int ser null.
-                                //Temos duas abordagens: Mudar o método para Integer, ou então criar um try-catch (bom pra pôr em prática).
+        else{
+            throw new NumeroJaInseridoException("Não há contato com esse número para editar");
+        }
+    }catch(NumeroJaInseridoException e){
+            System.err.println(e.getMessage());
+        }
     }
-    
 
-    public String[] consultarPorIndice(int indice) {
-        return contatos[indice];
+    public static int encontrarContato(Contato[] contato, String telefone){
+
+        int indice = -1;
+        for (int i=0; i< contato.length; i++){
+            if (contato[i].getTelefone().equals(telefone)){
+                indice = i;
+            }
+        }
+        return indice;
+    }
+
+
+    public Contato getObjeto(int indice){
+        try{
+            if (contato != null)  return contato[indice];
+
+            else{
+                throw new AgendaVaziaException("Agenda vazia");
+            }
+        }
+        catch (AgendaVaziaException e){
+            System.err.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public Contato[]  getTodoObjeto(){
+        return contato;
+    }
+
+
+    public static Contato[] copiarAgenda(Contato[] agenda, Contato[] arrayAuxiliar){
+        for (int i=0; i< agenda.length; i++){
+
+            arrayAuxiliar[i] = agenda[i];
+        }
+        return arrayAuxiliar;
     }
 
     public int tamanhoDaAgenda(){
-        return contatos.length;
+
+        try {
+            if (contato != null) return contato.length;
+            else throw new AgendaVaziaException("Agenda vazia");
+        } catch (AgendaVaziaException e) {
+            return 0;
+        }
     }
 }
