@@ -1,12 +1,11 @@
 package controlador;
 import java.util.Scanner;
-
 import exception.AgendaVaziaException;
 import exception.NumeroJaInseridoException;
+import exception.NumeroNaoEncontradoException;
 import modelo.ContatoModel;
 
 public class Contato {
-
     private Contato[] contato;
     private String nome;
     private String telefone;
@@ -40,7 +39,6 @@ public class Contato {
     }
 
     public void adicionar(String nome, String telefone, String email){
-
         if (contato == null){
             contato = new Contato[1];
             contato[0] = new Contato();
@@ -50,7 +48,6 @@ public class Contato {
         else {
             try {
                 if (!ContatoModel.numeroJaInserido(contato, telefone)) {
-
                     Contato[] contatoAux = new Contato[contato.length + 1];
                     contatoAux = Contato.copiarAgenda(contato, contatoAux);
                     contatoAux[contato.length] = new Contato();
@@ -68,45 +65,56 @@ public class Contato {
         }
 
     public void remover(String telefone){
+        try {
+            if (contato == null) {
+                throw new AgendaVaziaException("A agenda está vazia!\n");
+            } else {
+                int indice = encontrarContato(contato, telefone);
+                try {
+                    if (indice != -1) {
+                        Contato[] contatoAux = new Contato[contato.length - 1];
 
-        int indice = encontrarContato(contato, telefone);
-        if (indice != -1){
-            Contato[] contatoAux = new Contato[contato.length - 1];
-            if (indice == 0) {
-                for (int i = 1; i < contatoAux.length; i++) {
-                    contatoAux[i] = contato[i];
+                        if (indice == 0) {
+                            for (int i = 1; i < contatoAux.length; i++) {
+                                contatoAux[i] = contato[i];
+                            }
+
+                        } else if (indice == contato.length - 1) {
+                            for (int i = 0; i < contatoAux.length; i++) {
+                                contatoAux[i] = contato[i];
+                            }
+
+                        } else {
+                            for (int i = 0; i < indice; i++) {
+                                contatoAux[i] = contato[i];
+                            }
+                            for (int i = indice + 1; i < contato.length; i++) {
+                                contatoAux[i - 1] = contato[i];
+                            }
+
+                        }
+                        contato = contatoAux;
+                        System.out.println("Contato removido com sucesso!");
+                    } else {
+                        throw new NumeroNaoEncontradoException("Contato inexistente\n");
+                    }
+                }catch(NumeroNaoEncontradoException e){
+                    System.err.print(e.getMessage());
                 }
             }
-
-            else if (indice == contato.length - 1){
-                for (int i = 0; i < contatoAux.length; i++) {
-                    contatoAux[i] = contato[i];
-                }
-            }
-
-            else {
-                for( int i=0; i < indice; i++){
-
-                    contatoAux[i] = contato[i];
-                }
-
-                for(int i=indice +1; i < contato.length; i++){
-
-                    contatoAux[i-1] = contato[i];
-                }
-
-            }
-            contato = contatoAux;
+        } catch (AgendaVaziaException e) {
+            System.err.println(e.getMessage());
         }
+
 
     }
 
     public void editar(String telefone){
         try{
-        int indice = encontrarContato(contato, telefone);
-        Scanner s = new Scanner(System.in);
+            int indice = encontrarContato(contato, telefone);
+            Scanner s = new Scanner(System.in);
 
-        if (indice != -1) {
+            if (indice != -1) {
 
             try {
                 String novoNome = s.nextLine();
@@ -116,7 +124,7 @@ public class Contato {
                 if (encontrarContato(contato, novoTelefone) != -1) {
                     throw new NumeroJaInseridoException("Número já consta na agenda");
                 }
-                contato[indice].setDadosContato(s.nextLine(), s.nextLine(), s.nextLine());
+                contato[indice].setDadosContato(novoNome, novoTelefone,novoEmail);
             } catch (NumeroJaInseridoException e) {
                 System.err.println(e.getMessage());
             }
@@ -130,7 +138,6 @@ public class Contato {
     }
 
     public static int encontrarContato(Contato[] contato, String telefone){
-
         int indice = -1;
         for (int i=0; i< contato.length; i++){
             if (contato[i].getTelefone().equals(telefone)){
@@ -139,7 +146,6 @@ public class Contato {
         }
         return indice;
     }
-
 
     public Contato getObjeto(int indice){
         try{
@@ -162,14 +168,12 @@ public class Contato {
 
     public static Contato[] copiarAgenda(Contato[] agenda, Contato[] arrayAuxiliar){
         for (int i=0; i< agenda.length; i++){
-
             arrayAuxiliar[i] = agenda[i];
         }
         return arrayAuxiliar;
     }
 
     public int tamanhoDaAgenda(){
-
         try {
             if (contato != null) return contato.length;
             else throw new AgendaVaziaException("Agenda vazia");

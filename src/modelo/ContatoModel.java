@@ -1,7 +1,6 @@
 package modelo;
-
 import controlador.Contato;
-import exception.QtdDigitosTelefoneException;
+
 
 public class ContatoModel {
 
@@ -11,6 +10,7 @@ public class ContatoModel {
 
     public static boolean numeroJaInserido(Contato[] contato, String telefone) {
         boolean jaInserido = false;
+
         for (int i = 0; i < contato.length; i++) {
             if (contato[i].getTelefone().equals(telefone)) {
                 jaInserido = true;

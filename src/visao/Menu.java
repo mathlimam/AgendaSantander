@@ -2,7 +2,6 @@ package visao;
 import controlador.Contato;
 import utilitario.Util;
 
-
 public class Menu {
     public void iniciar() {
         Contato contato = new Contato();
@@ -35,7 +34,7 @@ public class Menu {
 
                 case "2":
                     contato.remover(Util.ler("Digite o número de telefone do contato que quer apagar: "));
-                    Util.escrever("\nContato removido com sucesso");
+                    Util.escrever("\n");
                     break;
 
                 case "3":

@@ -7,14 +7,11 @@ import modelo.ContatoModel;
 import java.util.Scanner;
 
 
-
 public  class Util {
-
     Scanner s = new Scanner(System.in);
     private static final int TAMANHO = 20;
 
     public static void escrever(String texto){
-
         System.out.printf("%s", texto);
     }
 
@@ -30,6 +27,7 @@ public  class Util {
             String nome = Util.ler("Digite o nome: ");
             String telefone = Util.ler("Digite o telefone: ");
             String email = Util.ler("Digite o email: ");
+
             if (ContatoModel.quantidadeIdealDigitosTelefone(telefone)) contato.adicionar(nome, telefone, email);
             else throw new QtdDigitosTelefoneException("A agenda só aceita telefones com 11 digitos");
 
@@ -62,7 +60,6 @@ public  class Util {
     }
 
     public static String ler(String mensagem){
-
         escrever(mensagem);
         Scanner s = new Scanner(System.in);
         String input = s.nextLine();
@@ -72,7 +69,6 @@ public  class Util {
     }
 
     public static String verificarTamanho(String parametro){
-
 
         if (parametro.length() >= TAMANHO){
             parametro = parametro.substring(0, TAMANHO-5).concat("...");
